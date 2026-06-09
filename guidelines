@@ -1,0 +1,187 @@
+# android.guidelines
+## Core Principles
+
+* Always prioritize **simple, readable, beginner-friendly code**.
+* Avoid advanced patterns unless explicitly required.
+* Prefer clarity over optimization.
+* Code should be understandable by students with basic programming knowledge.
+
+---
+
+## Mandatory Rules for AI Agents
+
+### 1. Prompt Logging (REQUIRED)
+
+All prompts used during development MUST be stored in a file named:
+
+```
+chat.txt
+```
+
+#### Rules:
+
+* File must be located at the **root of the project**.
+* If the file does not exist → CREATE IT.
+* Every prompt must include:
+
+  * Datetime
+  * Short description
+  * Full prompt
+
+#### Format:
+
+```
+[YYYY-MM-DD HH:MM:SS]
+Description: <short description>
+Prompt: <full prompt>
+```
+
+---
+
+### 2. AI Code Annotation (REQUIRED)
+
+ALL code generated or modified by the agent MUST include comments using the format:
+
+```kotlin
+// IA generated: <clear explanation of what was added or modified>
+```
+
+#### Example:
+
+```kotlin
+// IA generated: Function to display a simple Toast message
+fun showMessage(context: Context, message: String) {
+    Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
+}
+```
+
+---
+
+### 3. Code Simplicity Rule (CRITICAL)
+
+Agents MUST:
+
+* Use the simplest possible solution
+* Avoid unnecessary abstractions
+* Avoid overengineering
+* Prefer step-by-step logic
+
+#### GOOD:
+
+```kotlin
+// IA generated: Simple addition function
+fun add(a: Int, b: Int): Int {
+    return a + b
+}
+```
+
+#### BAD (avoid):
+
+```kotlin
+// Too complex for learning purposes
+fun add(a: Int, b: Int) = listOf(a, b).reduce { acc, i -> acc + i }
+```
+
+---
+
+## Project Structure Guidelines
+
+Use a **simple structure only**:
+
+```
+- activities/
+- models/
+- utils/
+```
+
+Avoid introducing:
+
+* Clean Architecture
+* Multi-module setups
+* Complex dependency injection
+
+Unless explicitly requested.
+
+---
+
+## UI Guidelines
+
+* Use basic Android components:
+
+  * TextView
+  * Button
+  * EditText
+* Keep layouts simple
+* Avoid complex UI frameworks initially
+
+#### Example:
+
+```xml
+<!-- IA generated: Simple layout for beginner UI -->
+<LinearLayout
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Hello Student" />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Click" />
+
+</LinearLayout>
+```
+
+---
+
+## Error Handling
+
+Use basic and safe error handling.
+
+```kotlin
+// IA generated: Basic safe division
+fun safeDivide(a: Int, b: Int): Int {
+    return try {
+        a / b
+    } catch (e: Exception) {
+        0
+    }
+}
+```
+
+---
+
+## Git Guidelines
+
+* Make small commits
+* Use clear messages
+* Example:
+
+  * "Add MainActivity basic UI"
+  * "Fix crash on button click"
+
+---
+
+## Teaching-Oriented Behavior
+
+Agents SHOULD:
+
+* Explain code through comments
+* Break solutions into small steps
+* Avoid skipping reasoning in implementation
+
+---
+
+## Summary
+
+This guideline enforces:
+
+* Traceability of AI usage (chat.txt)
+* Transparency (IA generated comments)
+* Simplicity (student-first code)
+
+These rules are **mandatory** for all AI-assisted Android development in this project.

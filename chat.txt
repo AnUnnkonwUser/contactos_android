@@ -1,0 +1,3 @@
+[2023-10-27 10:00:00]
+Description: Aplicación inicial de las reglas de guidelines.
+Prompt: encuentra el archivo guidelines y aplica las reglasencuentra los archivos guidelines y aplica las reglas
