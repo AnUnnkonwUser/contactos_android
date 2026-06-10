@@ -1,7 +1,12 @@
 package com.example.contactos.activities
 
+import android.Manifest
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.net.Uri
+import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -20,6 +25,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.content.ContextCompat
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -30,6 +36,22 @@ fun DetalleContactoScreen(
     onBack: () -> Unit
 ) {
     val context = LocalContext.current
+
+    // Launcher para solicitar el permiso de llamadas
+    val permissionLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestPermission()
+    ) { isGranted: Boolean ->
+        if (isGranted) {
+            // Lanza el Intent solo si el resultado es true
+            val intent = Intent(Intent.ACTION_CALL).apply {
+                data = Uri.parse("tel:$telefono")
+            }
+            context.startActivity(intent)
+        } else {
+            // Muestra un Toast indicando que el permiso es necesario
+            Toast.makeText(context, "El permiso de llamada es necesario para realizar la llamada directa", Toast.LENGTH_SHORT).show()
+        }
+    }
 
     Scaffold(
         topBar = {
@@ -89,10 +111,20 @@ fun DetalleContactoScreen(
             
             Button(
                 onClick = {
-                    val intent = Intent(Intent.ACTION_DIAL).apply {
-                        data = Uri.parse("tel:$telefono")
+                    // Verifica primero con ContextCompat.checkSelfPermission
+                    val permissionCheck = ContextCompat.checkSelfPermission(
+                        context,
+                        Manifest.permission.CALL_PHONE
+                    )
+
+                    if (permissionCheck == PackageManager.PERMISSION_GRANTED) {
+                        // Si el permiso ya está concedido -> lanza Intent(Intent.ACTION_CALL)
+                        val intent = Intent(Intent.ACTION_CALL, Uri.parse("tel:$telefono"))
+                        context.startActivity(intent)
+                    } else {
+                        // Si no está concedido -> llama al launcher para solicitarlo
+                        permissionLauncher.launch(Manifest.permission.CALL_PHONE)
                     }
-                    context.startActivity(intent)
                 },
                 modifier = Modifier.fillMaxWidth()
             ) {
