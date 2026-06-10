@@ -1,3 +1,11 @@
 [2023-10-27 10:00:00]
 Description: Aplicación inicial de las reglas de guidelines.
 Prompt: encuentra el archivo guidelines y aplica las reglasencuentra los archivos guidelines y aplica las reglas
+
+[2023-10-27 10:05:00]
+Description: Creación de modelo Contacto y datos de muestra.
+Prompt: Crea una data class Contacto(nombre: String, telefono: String, fotoRes: Int). Define una lista con al menos 8 contactos de muestra.
+
+[2023-10-27 10:10:00]
+Description: Creación de ListaContactosScreen con LazyColumn.
+Prompt: Construye la pantalla ListaContactosScreen usando LazyColumn: cada ítem muestra foto o avatar con iniciales y ponlo de lado izquierdo, nombre y número. Cada ítem debe recibir una lambda onClick que se invocará al tocarlo.
