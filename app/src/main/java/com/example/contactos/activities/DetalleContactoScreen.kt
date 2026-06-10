@@ -37,19 +37,15 @@ fun DetalleContactoScreen(
 ) {
     val context = LocalContext.current
 
-    // Launcher para solicitar el permiso de llamadas
+    // Launcher para solicitar el permiso de llamadas (ACTION_CALL)
     val permissionLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestPermission()
     ) { isGranted: Boolean ->
         if (isGranted) {
-            // Lanza el Intent solo si el resultado es true
-            val intent = Intent(Intent.ACTION_CALL).apply {
-                data = Uri.parse("tel:$telefono")
-            }
+            val intent = Intent(Intent.ACTION_CALL, Uri.parse("tel:$telefono"))
             context.startActivity(intent)
         } else {
-            // Muestra un Toast indicando que el permiso es necesario
-            Toast.makeText(context, "El permiso de llamada es necesario para realizar la llamada directa", Toast.LENGTH_SHORT).show()
+            Toast.makeText(context, "El permiso de llamada es necesario para la llamada directa", Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -109,26 +105,72 @@ fun DetalleContactoScreen(
             
             Spacer(modifier = Modifier.height(32.dp))
             
+            // Fila con los tres botones de acción rápida
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                // Botón de Llamada Directa (Requiere permiso)
+                Button(
+                    onClick = {
+                        val permissionCheck = ContextCompat.checkSelfPermission(
+                            context,
+                            Manifest.permission.CALL_PHONE
+                        )
+                        if (permissionCheck == PackageManager.PERMISSION_GRANTED) {
+                            val intent = Intent(Intent.ACTION_CALL, Uri.parse("tel:$telefono"))
+                            context.startActivity(intent)
+                        } else {
+                            permissionLauncher.launch(Manifest.permission.CALL_PHONE)
+                        }
+                    },
+                    modifier = Modifier.weight(1f),
+                    contentPadding = PaddingValues(4.dp)
+                ) {
+                    Text("Directa", fontSize = 11.sp)
+                }
+
+                // Botón de Marcador (No requiere permiso)
+                Button(
+                    onClick = {
+                        val intent = Intent(Intent.ACTION_DIAL, Uri.parse("tel:$telefono"))
+                        context.startActivity(intent)
+                    },
+                    modifier = Modifier.weight(1f),
+                    contentPadding = PaddingValues(4.dp)
+                ) {
+                    Text("Marcador", fontSize = 11.sp)
+                }
+
+                // Botón de Mensaje (SMS)
+                Button(
+                    onClick = {
+                        val intent = Intent(Intent.ACTION_SENDTO, Uri.parse("smsto:$telefono"))
+                        context.startActivity(intent)
+                    },
+                    modifier = Modifier.weight(1f),
+                    contentPadding = PaddingValues(4.dp)
+                ) {
+                    Text("Mensaje", fontSize = 11.sp)
+                }
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // Botón para Compartir contacto
             Button(
                 onClick = {
-                    // Verifica primero con ContextCompat.checkSelfPermission
-                    val permissionCheck = ContextCompat.checkSelfPermission(
-                        context,
-                        Manifest.permission.CALL_PHONE
-                    )
-
-                    if (permissionCheck == PackageManager.PERMISSION_GRANTED) {
-                        // Si el permiso ya está concedido -> lanza Intent(Intent.ACTION_CALL)
-                        val intent = Intent(Intent.ACTION_CALL, Uri.parse("tel:$telefono"))
-                        context.startActivity(intent)
-                    } else {
-                        // Si no está concedido -> llama al launcher para solicitarlo
-                        permissionLauncher.launch(Manifest.permission.CALL_PHONE)
+                    val intent = Intent(Intent.ACTION_SEND).apply {
+                        type = "text/plain"
+                        putExtra(Intent.EXTRA_SUBJECT, "Contacto: $nombre")
+                        putExtra(Intent.EXTRA_TEXT, "Nombre: $nombre\nTeléfono: $telefono")
                     }
+                    val chooser = Intent.createChooser(intent, "Compartir contacto vía")
+                    context.startActivity(chooser)
                 },
                 modifier = Modifier.fillMaxWidth()
             ) {
-                Text("Llamar")
+                Text("Compartir contacto")
             }
         }
     }
