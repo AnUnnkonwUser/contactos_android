@@ -9,10 +9,12 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -33,9 +35,24 @@ fun DetalleContactoScreen(
     nombre: String,
     telefono: String,
     fotoRes: Int,
+    direccion: String,
     onBack: () -> Unit
 ) {
     val context = LocalContext.current
+
+    // Función para abrir el mapa con validación de aplicación disponible
+    val abrirMapa: (String) -> Unit = { dir ->
+        val uri = Uri.parse("geo:0,0?q=${Uri.encode(dir)}")
+        val intent = Intent(Intent.ACTION_VIEW, uri).apply {
+            setPackage("com.google.android.apps.maps")
+        }
+        // Verificamos si hay una app disponible para manejar el intent
+        if (intent.resolveActivity(context.packageManager) != null) {
+            context.startActivity(intent)
+        } else {
+            Toast.makeText(context, "No se encontró una aplicación de mapas compatible", Toast.LENGTH_SHORT).show()
+        }
+    }
 
     // Launcher para solicitar el permiso de llamadas (ACTION_CALL)
     val permissionLauncher = rememberLauncherForActivityResult(
@@ -102,6 +119,26 @@ fun DetalleContactoScreen(
                 fontSize = 20.sp,
                 color = MaterialTheme.colorScheme.primary
             )
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // Estructura solicitada para la dirección y el ícono del mapa interactivo
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Icon(
+                    imageVector = Icons.Default.LocationOn,
+                    contentDescription = null,
+                    tint = Color.Red,
+                    modifier = Modifier.clickable { abrirMapa(direccion) }
+                )
+                Spacer(modifier = Modifier.width(4.dp))
+                Text(text = direccion)
+                IconButton(onClick = { abrirMapa(direccion) }) {
+                    Icon(
+                        imageVector = Icons.Default.LocationOn,
+                        contentDescription = "Ver en mapa"
+                    )
+                }
+            }
             
             Spacer(modifier = Modifier.height(32.dp))
             
@@ -110,7 +147,7 @@ fun DetalleContactoScreen(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                // Botón de Llamada Directa (Requiere permiso)
+                // 1. Botón de Llamada Directa (Requiere permiso)
                 Button(
                     onClick = {
                         val permissionCheck = ContextCompat.checkSelfPermission(
@@ -130,7 +167,7 @@ fun DetalleContactoScreen(
                     Text("Directa", fontSize = 11.sp)
                 }
 
-                // Botón de Marcador (No requiere permiso)
+                // 2. Botón de Marcador (ACTION_DIAL, no requiere permiso)
                 Button(
                     onClick = {
                         val intent = Intent(Intent.ACTION_DIAL, Uri.parse("tel:$telefono"))
@@ -142,7 +179,7 @@ fun DetalleContactoScreen(
                     Text("Marcador", fontSize = 11.sp)
                 }
 
-                // Botón de Mensaje (SMS)
+                // 3. Botón de Mensaje (SMS)
                 Button(
                     onClick = {
                         val intent = Intent(Intent.ACTION_SENDTO, Uri.parse("smsto:$telefono"))
@@ -163,7 +200,7 @@ fun DetalleContactoScreen(
                     val intent = Intent(Intent.ACTION_SEND).apply {
                         type = "text/plain"
                         putExtra(Intent.EXTRA_SUBJECT, "Contacto: $nombre")
-                        putExtra(Intent.EXTRA_TEXT, "Nombre: $nombre\nTeléfono: $telefono")
+                        putExtra(Intent.EXTRA_TEXT, "Nombre: $nombre\nTeléfono: $telefono\nDirección: $direccion")
                     }
                     val chooser = Intent.createChooser(intent, "Compartir contacto vía")
                     context.startActivity(chooser)

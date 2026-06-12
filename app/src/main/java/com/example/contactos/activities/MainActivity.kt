@@ -1,5 +1,6 @@
 package com.example.contactos.activities
 
+import android.net.Uri
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -44,27 +45,34 @@ fun AppNavigation() {
                 ListaContactosScreen(
                     contactos = listaDeContactos,
                     onContactoClick = { contacto ->
-                        // Navegamos pasando los argumentos en la ruta
-                        navController.navigate("detalle/${contacto.nombre}/${contacto.telefono}/${contacto.fotoRes}")
+                        // Codificamos los parámetros para evitar errores con caracteres especiales
+                        val encodedNombre = Uri.encode(contacto.nombre)
+                        val encodedDireccion = Uri.encode(contacto.direccion)
+                        
+                        navController.navigate("detalle/$encodedNombre/${contacto.telefono}/${contacto.fotoRes}/$encodedDireccion")
                     }
                 )
             }
             composable(
-                route = "detalle/{nombre}/{telefono}/{fotoRes}",
+                route = "detalle/{nombre}/{telefono}/{fotoRes}/{direccion}",
                 arguments = listOf(
                     navArgument("nombre") { type = NavType.StringType },
                     navArgument("telefono") { type = NavType.StringType },
-                    navArgument("fotoRes") { type = NavType.IntType }
+                    navArgument("fotoRes") { type = NavType.IntType },
+                    navArgument("direccion") { type = NavType.StringType }
                 )
             ) { backStackEntry ->
-                val nombre = backStackEntry.arguments?.getString("nombre") ?: ""
+                // Recuperamos y decodificamos los argumentos
+                val nombre = Uri.decode(backStackEntry.arguments?.getString("nombre") ?: "")
                 val telefono = backStackEntry.arguments?.getString("telefono") ?: ""
                 val fotoRes = backStackEntry.arguments?.getInt("fotoRes") ?: 0
-                
+                val direccion = Uri.decode(backStackEntry.arguments?.getString("direccion") ?: "")
+
                 DetalleContactoScreen(
                     nombre = nombre,
                     telefono = telefono,
                     fotoRes = fotoRes,
+                    direccion = direccion,
                     onBack = { navController.popBackStack() }
                 )
             }
